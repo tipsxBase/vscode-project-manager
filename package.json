@@ -1,0 +1,18 @@
+{
+  "name": "root",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "vscode:prepublish": "pnpm --filter vscode-project-manager run vscode:prepublish",
+    "compile": "pnpm --filter vscode-project-manager run compile",
+    "watch": "pnpm --filter vscode-project-manager run watch",
+    "package": "pnpm --filter vscode-project-manager run package",
+    "compile-tests": "pnpm --filter vscode-project-manager run compile-tests",
+    "watch-tests": "pnpm --filter vscode-project-manager run watch-tests",
+    "view:dev": "pnpm --filter web-view run dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
