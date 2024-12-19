@@ -1,26 +1,59 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
-
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
+import * as vscode from "vscode";
+import { WebviewProvider } from "./provider/WebviewProvider";
+import { EventEmitter } from "events";
+import { WebviewProviderEvents } from "./constant";
+import { isObject } from "./is";
+import path from "path";
+import { getProjectData } from "./storage";
 export function activate(context: vscode.ExtensionContext) {
+  console.log(context.globalStorageUri.path);
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "vscode-project-manager" is now active!');
+  const storageUrl = path.join(context.globalStorageUri.path, "project.json");
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('vscode-project-manager.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from vscode-project-manager!');
-	});
+  const fetchList = async (webviewView: vscode.WebviewView) => {
+    const projects = await getProjectData(storageUrl);
+    await webviewView.webview.postMessage({
+      type: "loaded",
+      payload: projects,
+    });
+  };
 
-	context.subscriptions.push(disposable);
+  try {
+    const globalEvent = new EventEmitter();
+
+    globalEvent.on(
+      WebviewProviderEvents.WebviewProviderRegistered,
+      async (webviewView: vscode.WebviewView) => {
+        vscode.workspace.onDidChangeConfiguration(async () => {});
+
+        webviewView.webview.onDidReceiveMessage(async (e) => {
+          if (e && isObject(e)) {
+            const { type, payload } = e;
+            if (type === "submit") {
+              vscode.commands.executeCommand(
+                "luban-conventional-commit.conventional",
+                payload
+              );
+            } else if (type === "AppInitialed") {
+              await fetchList(webviewView);
+            }
+          }
+        });
+      }
+    );
+
+    const webviewProvider = new WebviewProvider(context, globalEvent);
+    console.log("activate");
+    context.subscriptions.push(
+      vscode.window.registerWebviewViewProvider(
+        "project-manager",
+        webviewProvider
+      )
+    );
+  } catch (error) {}
 }
 
 // This method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() {
+  console.log("close");
+}

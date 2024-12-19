@@ -1,36 +1,90 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
+import { DataTable } from "./components/DataTable";
 import { Button } from "./components/ui/button";
+import { Save } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ColumnDef } from "@tanstack/react-table";
+import { Project } from "./schema";
+import { DataTableColumnHeader } from "./components/DataTable/data-table-column-header";
+import { Badge } from "./components/ui/badge";
+import { DataTableRowActions } from "./components/DataTable/data-table-row-actions";
+import { cn } from "./lib/utils";
+import { Tag } from "./type";
+const vscode = acquireVsCodeApi();
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [tags, setTags] = useState<Tag[]>([]);
+  const [list, setList] = useState<Project[]>([]);
+  const columns: ColumnDef<Project>[] = [
+    {
+      accessorKey: "projectName",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="项目名称" />
+      ),
+      cell: ({ row }) => {
+        const tag = tags.find((tag) => tag.title === row.original.projectTag);
+
+        return (
+          <div className="flex space-x-2">
+            {tag && (
+              <Badge
+                style={{ backgroundColor: tag.color }}
+                className="text-white"
+                variant="outline"
+              >
+                {tag.title}
+              </Badge>
+            )}
+            <span className="max-w-[500px] truncate font-medium">
+              {row.getValue("projectName")}
+            </span>
+          </div>
+        );
+      },
+      filterFn: (row, _, value) => {
+        const { column, filter } = value;
+        if (column === "projectName") {
+          return (row.getValue(column) as string).includes(filter);
+        } else if (column === "projectTag") {
+          return filter?.includes(row.original.projectTag as string);
+        }
+      },
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => <DataTableRowActions row={row} />,
+    },
+  ];
+
+  useEffect(() => {
+    vscode.postMessage({
+      type: "AppInitialed",
+    });
+
+    window.addEventListener("message", (message) => {
+      const { type, data } = message;
+      if (type === "message") {
+        const { type, payload } = data;
+        switch (type) {
+          case "loaded": {
+            const { list, tags } = payload;
+            setTags(tags);
+            setList(list);
+          }
+        }
+      }
+    });
+  }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="h-screen py-5 flex flex-col gap-4">
+      <div className="flex gap-3 bg-slate-950">
+        <Button>
+          <Save /> 保存项目
+        </Button>
+        <Button variant="destructive">批量删除项目</Button>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-      <Button>你好</Button>
-    </>
+      <DataTable tags={tags} data={list} columns={columns} />
+    </div>
   );
 }
 
