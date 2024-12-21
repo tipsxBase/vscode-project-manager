@@ -1,15 +1,14 @@
 import { DataTable } from "./components/DataTable";
 import { Button } from "./components/ui/button";
 import { Save } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { Project } from "./schema";
 import { DataTableColumnHeader } from "./components/DataTable/data-table-column-header";
 import { Badge } from "./components/ui/badge";
 import { DataTableRowActions } from "./components/DataTable/data-table-row-actions";
-import { cn } from "./lib/utils";
-import { Tag } from "./type";
-const vscode = acquireVsCodeApi();
+import { fetchData } from "./fetch";
+import { Project, ProjectManagerStore, Tag } from "shared/interface";
+import { WebviewResponseMethod } from "shared/constant";
 
 function App() {
   const [tags, setTags] = useState<Tag[]>([]);
@@ -55,34 +54,32 @@ function App() {
     },
   ];
 
-  useEffect(() => {
-    vscode.postMessage({
-      type: "AppInitialed",
-    });
-
-    window.addEventListener("message", (message) => {
-      const { type, data } = message;
-      if (type === "message") {
-        const { type, payload } = data;
-        switch (type) {
-          case "loaded": {
-            const { list, tags } = payload;
-            setTags(tags);
-            setList(list);
-          }
-        }
+  const fetchStore = useCallback(() => {
+    fetchData<any, ProjectManagerStore>(WebviewResponseMethod.FetchStore).then(
+      (res) => {
+        const { data } = res;
+        const { list, tags } = data;
+        setList(list);
+        setTags(tags);
       }
-    });
+    );
   }, []);
 
+  useEffect(() => {
+    fetchStore();
+  }, [fetchStore]);
+
+  const doSave = useCallback(() => {
+    fetchData(WebviewResponseMethod.SaveProject).then(() => {
+      fetchStore();
+    });
+  }, [fetchStore]);
+
   return (
-    <div className="h-screen py-5 flex flex-col gap-4">
-      <div className="flex gap-3 bg-slate-950">
-        <Button>
-          <Save /> 保存项目
-        </Button>
-        <Button variant="destructive">批量删除项目</Button>
-      </div>
+    <div className="h-screen py-5 flex flex-col gap-4 relative">
+      <Button size="sm" className="absolute right-0 top-5" onClick={doSave}>
+        <Save /> 保存项目
+      </Button>
       <DataTable tags={tags} data={list} columns={columns} />
     </div>
   );

@@ -24,7 +24,8 @@
     "noImplicitAny": false,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "shared/*": ["../shared/src/*"]
     }
   },
   "include": ["src"]

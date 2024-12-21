@@ -1,6 +1,7 @@
 import fs from "fs-extra";
+import { ProjectManagerStore } from "shared/interface";
 
-const emptyJson = {
+const emptyJson: ProjectManagerStore = {
   list: [
     {
       projectName: "react18.2-debugger",
@@ -104,7 +105,7 @@ const emptyJson = {
   ],
 };
 
-export const getProjectData = async (pathname: string) => {
+export const getProjectStore = async (pathname: string) => {
   const isExist = fs.pathExists(pathname);
   if (!isExist) {
     await fs.ensureFile(pathname);
@@ -112,10 +113,18 @@ export const getProjectData = async (pathname: string) => {
   }
 
   try {
-    const list = await fs.readJSON(pathname);
+    const list: ProjectManagerStore = await fs.readJSON(pathname);
     return list;
   } catch (e) {
     await fs.writeJSON(pathname, emptyJson, { encoding: "utf8" });
     return emptyJson;
   }
+};
+
+export const saveProjectStore = async (
+  pathname: string,
+  store: ProjectManagerStore
+) => {
+  await fs.ensureFile(pathname);
+  await fs.writeJSON(pathname, store, { encoding: "utf8" });
 };

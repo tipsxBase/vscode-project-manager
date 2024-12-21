@@ -7,5 +7,3 @@ export const projectSchema = z.object({
   projectTag: z.string(),
   projectPath: z.string(),
 });
-
-export type Project = z.infer<typeof projectSchema>;
