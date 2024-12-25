@@ -1,8 +1,11 @@
 import * as vscode from "vscode";
 import { join } from "path";
 import { readFileSync } from "fs";
+import { WebViewType } from "../constant";
 
 export default class ContentProvider {
+  constructor(public view: WebViewType) {}
+
   getDevServerContent(
     context: vscode.ExtensionContext,
     webviewView: vscode.WebviewView
@@ -23,7 +26,12 @@ export default class ContentProvider {
         window.__vite_plugin_react_preamble_installed__ = true
       </script>
       <script type="module" src="http://localhost:5173/@vite/client"></script>
-      <script type="module" src="http://localhost:5173/src/main.tsx"></script>
+      ${
+        this.view === WebViewType.ProjectManager
+          ? '<script type="module" src="http://localhost:5173/src/main.tsx"></script>'
+          : '<script type="module" src="http://localhost:5173/src/tagMain.tsx"></script>'
+      }
+      
     </body>
     </html>
       `;

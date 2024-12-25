@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { WebviewProvider } from "./provider/WebviewProvider";
 import { EventEmitter } from "events";
-import { WebviewProviderEvents } from "./constant";
+import { Command, WebviewProviderEvents, WebViewType } from "./constant";
 import { isObject } from "./is";
 import path from "path";
 import { getProjectStore, saveProjectStore } from "./storage";
@@ -10,6 +10,37 @@ import { WebviewResponseMethod } from "shared/constant";
 import { Project } from "shared/interface";
 export function activate(context: vscode.ExtensionContext) {
   const storageUrl = path.join(context.globalStorageUri.path, "project.json");
+
+  vscode.commands.registerCommand(
+    Command.openFolder,
+    async (project: Project) => {
+      const uri = vscode.Uri.file(project.projectPath);
+      vscode.commands
+        .executeCommand("vscode.openFolder", uri, {
+          forceNewWindow: true,
+        })
+        .then(
+          (value) => ({}), // done
+          (value) =>
+            vscode.window.showInformationMessage(vscode.l10n.t("打开项目失败"))
+        );
+    }
+  );
+  vscode.commands.registerCommand(
+    Command.openFolderInCurrentWindow,
+    (project: Project) => {
+      const uri = vscode.Uri.file(project.projectPath);
+      vscode.commands
+        .executeCommand("vscode.openFolder", uri, {
+          forceNewWindow: false,
+        })
+        .then(
+          (value) => ({}), // done
+          (value) =>
+            vscode.window.showInformationMessage(vscode.l10n.t("打开项目失败"))
+        );
+    }
+  );
 
   const fetchStore = async (webviewView: vscode.WebviewView) => {
     const store = await getProjectStore(storageUrl);
@@ -26,9 +57,7 @@ export function activate(context: vscode.ExtensionContext) {
       const { name, uri } = workspaceFolder;
       const isExisted =
         store.list.findIndex((p) => p.projectPath === uri.path) > -1;
-      if (isExisted) {
-        // 已经存在则不处理
-      } else {
+      if (!isExisted) {
         const project: Project = {
           projectName: name,
           projectPath: uri.path,
@@ -47,34 +76,121 @@ export function activate(context: vscode.ExtensionContext) {
     );
   };
 
+  const updateProject = async (
+    webviewView: vscode.WebviewView,
+    list: Project[]
+  ) => {
+    const store = await getProjectStore(storageUrl);
+    store.list = list;
+    await saveProjectStore(storageUrl, store);
+    await webviewView.webview.postMessage(
+      createVsCodeSuccessResponse(WebviewResponseMethod.UpdateProject, store)
+    );
+  };
+
+  const openProject = async (project: Project) => {
+    vscode.commands.executeCommand(Command.openFolder, project);
+  };
+
+  const openProjectInCurrentWindow = async (project: Project) => {
+    vscode.commands.executeCommand(Command.openFolderInCurrentWindow, project);
+  };
+
+  const onExtensionInitialed = async (webviewView: vscode.WebviewView) => {
+    const currentPaths = vscode.workspace.workspaceFolders?.map(
+      (workspaceFolder) => {
+        const { uri } = workspaceFolder;
+        return uri.path;
+      }
+    );
+    webviewView.webview.postMessage(
+      createVsCodeSuccessResponse(
+        WebviewResponseMethod.ExtensionInitialized,
+        currentPaths
+      )
+    );
+  };
+
+  const handleWebviewMessage = async (
+    webviewView: vscode.WebviewView,
+    e: any
+  ) => {
+    const { method, payload } = e;
+    switch (method) {
+      case WebviewResponseMethod.FetchStore:
+        await fetchStore(webviewView);
+        break;
+      case WebviewResponseMethod.SaveProject:
+        await saveProject(webviewView);
+        break;
+      case WebviewResponseMethod.UpdateProject:
+        await updateProject(webviewView, payload);
+        break;
+      case WebviewResponseMethod.OpenProject:
+        await openProject(payload);
+        break;
+      case WebviewResponseMethod.OpenProjectInCurrentWindow:
+        await openProjectInCurrentWindow(payload);
+        break;
+      case WebviewResponseMethod.ExtensionInitialized:
+        await onExtensionInitialed(webviewView);
+        break;
+      default:
+        console.warn(`Unknown method: ${method}`);
+    }
+  };
+
   try {
     const globalEvent = new EventEmitter();
 
     globalEvent.on(
-      WebviewProviderEvents.WebviewProviderRegistered,
+      WebviewProviderEvents.WebviewProviderOfManagerRegistered,
       async (webviewView: vscode.WebviewView) => {
         vscode.workspace.onDidChangeConfiguration(async () => {});
-
         webviewView.webview.onDidReceiveMessage(async (e) => {
           if (e && isObject(e)) {
-            const { method, type, payload } = e;
-            if (method === WebviewResponseMethod.FetchStore) {
-              await fetchStore(webviewView);
-            } else if (method === WebviewResponseMethod.SaveProject) {
-              // 保存项目
-              await saveProject(webviewView);
-            }
+            handleWebviewMessage(webviewView, e);
           }
         });
       }
     );
 
-    const webviewProvider = new WebviewProvider(context, globalEvent);
+    globalEvent.on(
+      WebviewProviderEvents.WebviewProviderOfTagRegistered,
+      async (webviewView: vscode.WebviewView) => {
+        vscode.workspace.onDidChangeConfiguration(async () => {});
+        webviewView.webview.onDidReceiveMessage(async (e) => {
+          if (e && isObject(e)) {
+            handleWebviewMessage(webviewView, e);
+          }
+        });
+      }
+    );
+
+    const projectManagerWebviewProvider = new WebviewProvider(
+      context,
+      globalEvent,
+      WebViewType.ProjectManager
+    );
+
+    const projectManagerTagWebviewProvider = new WebviewProvider(
+      context,
+      globalEvent,
+      WebViewType.ProjectManagerTag
+    );
+
     console.log("activate");
     context.subscriptions.push(
       vscode.window.registerWebviewViewProvider(
         "project-manager",
-        webviewProvider
+        projectManagerWebviewProvider
+      )
+    );
+
+    context.subscriptions.push(
+      vscode.window.registerWebviewViewProvider(
+        "project-manager-tag",
+        projectManagerTagWebviewProvider
       )
     );
   } catch (error) {}

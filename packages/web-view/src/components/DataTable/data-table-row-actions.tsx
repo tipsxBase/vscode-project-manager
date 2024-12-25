@@ -12,31 +12,41 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { projectSchema } from "../../schema";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
+import { Project } from "shared/interface";
 
-interface DataTableRowActionsProps<TData> {
-  row: Row<TData>;
+interface DataTableRowActionsProps {
+  row: Row<Project>;
+  onEdit: (row: Project) => void;
+  onOpenInCurrentWindow: (row: Project) => void;
+  onDelete: (row: Project) => void;
+  onOpen: (row: Project) => void;
+  currentPaths: string[];
 }
 
-export function DataTableRowActions<TData>({
+export function DataTableRowActions({
   row,
-}: DataTableRowActionsProps<TData>) {
-  const task = projectSchema.parse(row.original);
-
+  onEdit,
+  onDelete,
+  onOpenInCurrentWindow,
+  onOpen,
+  currentPaths,
+}: DataTableRowActionsProps) {
   return (
     <div className="flex items-center">
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
+              disabled={currentPaths.includes(row.original.projectPath)}
+              onClick={() => onOpen(row.original)}
               variant="ghost"
-              className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
+              className="flex h-7 w-7 p-0 data-[state=open]:bg-muted"
             >
               <ExternalLink />
             </Button>
@@ -51,16 +61,25 @@ export function DataTableRowActions<TData>({
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
+            className="flex h-7 w-7 p-0 data-[state=open]:bg-muted"
           >
             <MoreHorizontal />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
-          <DropdownMenuItem>编辑</DropdownMenuItem>
-          <DropdownMenuItem>当前窗口打开</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => onEdit(row.original)}>
+            编辑
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            disabled={currentPaths.includes(row.original.projectPath)}
+            onSelect={() => onOpenInCurrentWindow(row.original)}
+          >
+            当前窗口打开
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>删除</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => onDelete(row.original)}>
+            删除
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

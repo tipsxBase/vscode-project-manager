@@ -1,9 +1,7 @@
 "use client";
 
 import { Table } from "@tanstack/react-table";
-import { X } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
 import { useMemo } from "react";
@@ -23,8 +21,6 @@ export function DataTableToolbar<TData>({
   table,
   tags,
 }: DataTableToolbarProps<TData>) {
-  const isFiltered = table.getState().columnFilters.length > 0;
-
   const filterValue = table
     .getColumn("projectName")
     ?.getFilterValue() as FilterValue;
@@ -58,16 +54,6 @@ export function DataTableToolbar<TData>({
           title="标签"
           options={tags}
         />
-        {isFiltered && (
-          <Button
-            variant="ghost"
-            onClick={() => table.resetColumnFilters()}
-            className="h-8 px-2 lg:px-3"
-          >
-            Reset
-            <X />
-          </Button>
-        )}
       </div>
     </div>
   );

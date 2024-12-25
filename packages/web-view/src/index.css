@@ -65,6 +65,10 @@
   }
 }
 
+body {
+  padding: 0 !important;
+}
+
 a:focus,
 input:focus,
 select:focus,

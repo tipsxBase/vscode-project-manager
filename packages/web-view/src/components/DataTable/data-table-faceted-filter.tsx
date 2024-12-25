@@ -19,7 +19,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import { Tag } from "@/type";
+import { Tag } from "shared/interface";
+import { useMemo } from "react";
 
 interface DataTableFacetedFilterProps<TData, TValue> {
   column?: Column<TData, TValue>;
@@ -42,11 +43,14 @@ export function DataTableFacetedFilter<TData, TValue>({
   title,
   options,
 }: DataTableFacetedFilterProps<TData, TValue>) {
-  const facets = column?.getFacetedUniqueValues();
   const filterValue = column?.getFilterValue() || emptyFilterValue;
-  const selectedValues = new Set(
-    (filterValue as FilterValue).filter as string[]
-  );
+  const selectedValues = useMemo(() => {
+    const { column, filter } = filterValue as FilterValue;
+    if (column === "projectName") {
+      return new Set();
+    }
+    return new Set(filter);
+  }, [filterValue]);
 
   return (
     <Popover>
@@ -133,11 +137,6 @@ export function DataTableFacetedFilter<TData, TValue>({
                     </div>
 
                     <span>{option.title}</span>
-                    {facets?.get(option.title) && (
-                      <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
-                        {facets.get(option.title)}
-                      </span>
-                    )}
                   </CommandItem>
                 );
               })}

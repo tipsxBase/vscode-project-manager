@@ -19,6 +19,11 @@
           "id": "project-manager",
           "type": "webview",
           "name": "项目管理"
+        },
+        {
+          "id": "project-manager-tag",
+          "type": "webview",
+          "name": "标签管理"
         }
       ]
     },
@@ -34,6 +39,10 @@
     "viewsWelcome": [
       {
         "view": "project-manager",
+        "contents": "loading..."
+      },
+      {
+        "view": "project-manager-tag",
         "contents": "loading..."
       }
     ],
