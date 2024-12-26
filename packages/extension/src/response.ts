@@ -1,4 +1,4 @@
-import { WebviewResponseMethod } from "shared/constant";
+import { WebviewResponseMethod, WebviewServerPushEvent } from "shared/constant";
 import { VsCodeResponse } from "shared/interface";
 
 export const createVsCodeSuccessResponse = <T>(
@@ -8,6 +8,21 @@ export const createVsCodeSuccessResponse = <T>(
   return {
     method,
     type: "response",
+    payload: {
+      code: 200,
+      message: "success",
+      data: payload,
+    },
+  };
+};
+
+export const createVsCodeServerPushResponse = <T>(
+  method: WebviewServerPushEvent,
+  payload: T
+): VsCodeResponse<T> => {
+  return {
+    method,
+    type: "push",
     payload: {
       code: 200,
       message: "success",

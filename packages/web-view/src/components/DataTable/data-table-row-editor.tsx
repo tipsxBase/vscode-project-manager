@@ -56,7 +56,7 @@ export function DataTableRowEditor({
         </SelectTrigger>
         <SelectContent>
           {tags.map((tag) => (
-            <SelectItem key={tag.title} value={tag.title}>
+            <SelectItem key={tag.title} value={tag.id}>
               <Badge
                 style={{ backgroundColor: tag.color }}
                 className="text-white"

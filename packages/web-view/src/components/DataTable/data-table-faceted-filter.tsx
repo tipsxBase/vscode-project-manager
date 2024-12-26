@@ -81,7 +81,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                     .map((option) => (
                       <Badge
                         variant="secondary"
-                        key={option.title}
+                        key={option.id}
                         style={{ backgroundColor: option.color }}
                         className={cn(
                           "rounded-sm px-1 font-normal",
@@ -104,15 +104,15 @@ export function DataTableFacetedFilter<TData, TValue>({
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup>
               {options.map((option) => {
-                const isSelected = selectedValues.has(option.title);
+                const isSelected = selectedValues.has(option.id);
                 return (
                   <CommandItem
-                    key={option.title}
+                    key={option.id}
                     onSelect={() => {
                       if (isSelected) {
-                        selectedValues.delete(option.title);
+                        selectedValues.delete(option.id);
                       } else {
-                        selectedValues.add(option.title);
+                        selectedValues.add(option.id);
                       }
                       const filterValues = Array.from(selectedValues);
                       column?.setFilterValue(

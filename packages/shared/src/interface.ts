@@ -1,4 +1,4 @@
-import { WebviewResponseMethod } from "./constant";
+import { WebviewResponseMethod, WebviewServerPushEvent } from "./constant";
 
 export interface Project {
   projectName: string;
@@ -9,6 +9,7 @@ export interface Project {
 export interface Tag {
   title: string;
   color: string;
+  id: string;
 }
 
 export interface ProjectManagerStore {
@@ -21,12 +22,22 @@ export interface VsCodeMessage<T = unknown> {
   payload?: T;
 }
 
-export interface VsCodeResponse<T = unknown> {
-  method: WebviewResponseMethod;
-  type: "response";
-  payload: {
-    code: number;
-    message: string;
-    data: T;
-  };
-}
+export type VsCodeResponse<T = unknown> =
+  | {
+      method: WebviewResponseMethod;
+      type: "response";
+      payload: {
+        code: number;
+        message: string;
+        data: T;
+      };
+    }
+  | {
+      method: WebviewServerPushEvent;
+      type: "push";
+      payload: {
+        code: number;
+        message: string;
+        data: T;
+      };
+    };

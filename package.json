@@ -7,10 +7,11 @@
     "vscode:prepublish": "pnpm --filter vscode-project-manager run vscode:prepublish",
     "compile": "pnpm --filter vscode-project-manager run compile",
     "watch": "pnpm --filter vscode-project-manager run watch",
-    "package": "pnpm --filter vscode-project-manager run package",
+    "package": "npm run build:view && pnpm --filter vscode-project-manager run package",
     "compile-tests": "pnpm --filter vscode-project-manager run compile-tests",
     "watch-tests": "pnpm --filter vscode-project-manager run watch-tests",
-    "view:dev": "pnpm --filter web-view run dev"
+    "view:dev": "pnpm --filter web-view run dev",
+    "build:view": "pnpm --filter web-view run build"
   },
   "keywords": [],
   "author": "",

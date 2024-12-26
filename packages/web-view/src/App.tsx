@@ -6,9 +6,9 @@ import { CellContext, ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "./components/DataTable/data-table-column-header";
 import { Badge } from "./components/ui/badge";
 import { DataTableRowActions } from "./components/DataTable/data-table-row-actions";
-import { fetchData } from "./fetch";
+import { fetchData, registerServerPushEvent } from "./fetch";
 import { Project, ProjectManagerStore, Tag } from "shared/interface";
-import { WebviewResponseMethod } from "shared/constant";
+import { WebviewResponseMethod, WebviewServerPushEvent } from "shared/constant";
 import { DataTableRowEditor } from "./components/DataTable/data-table-row-editor";
 import useMemoizedFn from "./hooks/useMemoizedFn";
 
@@ -80,7 +80,7 @@ function App() {
           />
         );
       }
-      const tag = tags.find((tag) => tag.title === row.original.projectTag);
+      const tag = tags.find((tag) => tag.id === row.original.projectTag);
 
       return (
         <div className="flex space-x-2">
@@ -186,7 +186,19 @@ function App() {
     });
 
     fetchStore();
-  }, [fetchStore]);
+
+    const unregister = registerServerPushEvent(
+      WebviewServerPushEvent.TAG_UPDATED,
+      (res) => {
+        const { data } = res;
+        updateStore(data);
+      }
+    );
+
+    return () => {
+      unregister();
+    };
+  }, [fetchStore, updateStore]);
 
   const doAdd = useMemoizedFn(() => {
     fetchData(WebviewResponseMethod.SaveProject).then(() => {
@@ -195,7 +207,7 @@ function App() {
   });
 
   return (
-    <div className="h-screen p-5 flex flex-col gap-4 relative">
+    <div className="h-screen p-2 flex flex-col gap-4 relative">
       <Button
         className="flex h-8 w-8 p-0 data-[state=open]:bg-muted absolute top-5 right-5"
         size="icon"

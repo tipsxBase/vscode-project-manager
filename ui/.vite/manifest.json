@@ -1,0 +1,31 @@
+{
+  "_useMemoizedFn-BCNTvhCO.js": {
+    "file": "assets/useMemoizedFn-BCNTvhCO.js",
+    "name": "useMemoizedFn",
+    "css": [
+      "assets/useMemoizedFn-VssCGZ4j.css"
+    ]
+  },
+  "_useMemoizedFn-VssCGZ4j.css": {
+    "file": "assets/useMemoizedFn-VssCGZ4j.css",
+    "src": "_useMemoizedFn-VssCGZ4j.css"
+  },
+  "index.html": {
+    "file": "assets/main-BPYVlyqg.js",
+    "name": "main",
+    "src": "index.html",
+    "isEntry": true,
+    "imports": [
+      "_useMemoizedFn-BCNTvhCO.js"
+    ]
+  },
+  "tag.html": {
+    "file": "assets/nested-RxUaX4_L.js",
+    "name": "nested",
+    "src": "tag.html",
+    "isEntry": true,
+    "imports": [
+      "_useMemoizedFn-BCNTvhCO.js"
+    ]
+  }
+}
