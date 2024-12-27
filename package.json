@@ -96,7 +96,8 @@
     "lint": "eslint src",
     "test": "vscode-test",
     "dev": "cd web-view && npm run dev",
-    "build:ui": "cd web-view && npm run build"
+    "build:ui": "cd web-view && npm run build",
+    "vsce": "vsce package"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
