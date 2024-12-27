@@ -1,4 +1,5 @@
 {
+  "exclude": ["web-view"],
   "compilerOptions": {
     "module": "Node16",
     "target": "ES2022",
@@ -8,7 +9,7 @@
     "strictNullChecks": false,
     "baseUrl": ".",
     "paths": {
-      "shared/*": ["../shared/src/*"]
+      "shared/*": ["./shared/src/*"]
     }
 
     /* Additional Checks */

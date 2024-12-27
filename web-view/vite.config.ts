@@ -7,7 +7,7 @@ export default defineConfig({
   build: {
     manifest: true,
     emptyOutDir: true,
-    outDir: resolve(process.cwd(), "../../ui"),
+    outDir: resolve(process.cwd(), "../ui"),
     rollupOptions: {
       input: {
         main: resolve(__dirname, "index.html"),

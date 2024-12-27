@@ -1,22 +1,118 @@
 {
-  "name": "root",
-  "version": "1.0.0",
+  "name": "vscode-manager-project-management",
+  "displayName": "vscode-project-management",
   "description": "",
-  "main": "index.js",
-  "scripts": {
-    "vscode:prepublish": "pnpm --filter vscode-project-manager run vscode:prepublish",
-    "compile": "pnpm --filter vscode-project-manager run compile",
-    "watch": "pnpm --filter vscode-project-manager run watch",
-    "package": "npm run build:view && pnpm --filter vscode-project-manager run package",
-    "compile-tests": "pnpm --filter vscode-project-manager run compile-tests",
-    "watch-tests": "pnpm --filter vscode-project-manager run watch-tests",
-    "view:dev": "pnpm --filter web-view run dev",
-    "build:view": "pnpm --filter web-view run build"
+  "version": "0.0.1",
+  "publisher": "tipsxBase",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:tipsxBase/vscode-project-manager.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "views": {
+      "vscode-project-manager": [
+        {
+          "id": "project-manager",
+          "type": "webview",
+          "name": "项目管理"
+        },
+        {
+          "id": "project-manager-tag",
+          "type": "webview",
+          "name": "标签管理"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "vscode-project-manager",
+          "title": "项目管理",
+          "icon": "media/logo.svg"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "project-manager",
+        "contents": "loading..."
+      },
+      {
+        "view": "project-manager-tag",
+        "contents": "loading..."
+      }
+    ],
+    "commands": [
+      {
+        "command": "vscode-project-manager.saveProject",
+        "title": "保存项目",
+        "icon": {
+          "light": "media/save-light.svg",
+          "dark": "media/save-dark.svg"
+        }
+      },
+      {
+        "command": "vscode-project-manager.newTag",
+        "title": "新建标签",
+        "icon": {
+          "light": "media/plus-light.svg",
+          "dark": "media/plus-dark.svg"
+        }
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "vscode-project-manager.saveProject",
+          "when": "view == project-manager",
+          "group": "navigation"
+        },
+        {
+          "command": "vscode-project-manager.newTag",
+          "when": "view == project-manager-tag",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "build": "webpack --mode production --devtool hidden-source-map",
+    "package": "npm run build:ui && webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test",
+    "dev": "cd web-view && npm run dev",
+    "build:ui": "cd web-view && npm run build"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.96.0",
+    "@typescript-eslint/eslint-plugin": "^8.17.0",
+    "@typescript-eslint/parser": "^8.17.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1",
+    "eslint": "^9.16.0",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.7.2",
+    "webpack": "^5.95.0",
+    "webpack-cli": "^5.1.4"
+  },
   "dependencies": {
-    "typescript": "^5.7.2"
+    "fs-extra": "^11.2.0"
   }
 }
