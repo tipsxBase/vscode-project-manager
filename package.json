@@ -1,13 +1,14 @@
 {
   "name": "vscode-manager-project-management",
-  "displayName": "vscode-project-management",
-  "description": "项目管理助手",
-  "version": "0.0.2",
+  "displayName": "Project Management Tool",
+  "description": "快捷易用的项目管理助手",
+  "version": "0.0.3",
   "publisher": "tipsx",
   "repository": {
     "type": "git",
     "url": "git@github.com:tipsxBase/vscode-project-manager.git"
   },
+  "icon": "media/logo.png",
   "engines": {
     "vscode": "^1.96.0"
   },
