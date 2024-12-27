@@ -100,7 +100,7 @@ export default class ContentProvider {
         ${cssStyles.map((style) => style).join("\n")}
     </head>
     <body>
-      <div id="app"></div>
+      <div id="root"></div>
       </body>
     </html>
       `;
