@@ -22,4 +22,5 @@ export const getWebViewProviderEvent = (view: WebViewType) => {
 export enum Command {
   openFolder = "PROJECT_OPEN_FOLDER",
   openFolderInCurrentWindow = "PROJECT_OPEN_FOLDER_IN_CURRENT_WINDOW",
+  saveProject = "VSCODE_PROJECT_MANAGER_SAVE_PROJECT",
 }

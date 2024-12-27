@@ -1,6 +1,6 @@
 import { DataTable } from "./components/DataTable";
 import { Button } from "./components/ui/button";
-import { Save, SaveIcon, X } from "lucide-react";
+import { SaveIcon, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { CellContext, ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "./components/DataTable/data-table-column-header";
@@ -188,7 +188,7 @@ function App() {
     fetchStore();
 
     const unregister = registerServerPushEvent(
-      WebviewServerPushEvent.TAG_UPDATED,
+      WebviewServerPushEvent.StoreUpdated,
       (res) => {
         const { data } = res;
         updateStore(data);
@@ -200,22 +200,8 @@ function App() {
     };
   }, [fetchStore, updateStore]);
 
-  const doAdd = useMemoizedFn(() => {
-    fetchData(WebviewResponseMethod.SaveProject).then(() => {
-      fetchStore();
-    });
-  });
-
   return (
     <div className="h-screen p-2 flex flex-col gap-4 relative">
-      <Button
-        className="flex h-8 w-8 p-0 data-[state=open]:bg-muted absolute top-5 right-5"
-        size="icon"
-        onClick={doAdd}
-      >
-        <Save />
-      </Button>
-
       <DataTable
         updateRow={setEditingProject}
         tags={tags}

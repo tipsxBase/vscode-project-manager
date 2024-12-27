@@ -7,3 +7,9 @@ export const projectSchema = z.object({
   projectTag: z.string(),
   projectPath: z.string(),
 });
+
+export const tagSchema = z.object({
+  id: z.string(),
+  title: z.string().min(1, "标签名称不能为空"),
+  color: z.string().min(1, "标签颜色不能为空"),
+});

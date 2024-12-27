@@ -48,10 +48,36 @@
     ],
     "commands": [
       {
-        "command": "vscode-project-manager.helloWorld",
-        "title": "Hello World"
+        "command": "vscode-project-manager.saveProject",
+        "title": "保存项目",
+        "icon": {
+          "light": "media/save-light.svg",
+          "dark": "media/save-dark.svg"
+        }
+      },
+      {
+        "command": "vscode-project-manager.newTag",
+        "title": "新建标签",
+        "icon": {
+          "light": "media/plus-light.svg",
+          "dark": "media/plus-dark.svg"
+        }
       }
-    ]
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "vscode-project-manager.saveProject",
+          "when": "view == project-manager",
+          "group": "navigation"
+        },
+        {
+          "command": "vscode-project-manager.newTag",
+          "when": "view == project-manager-tag",
+          "group": "navigation"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "pnpm run package",

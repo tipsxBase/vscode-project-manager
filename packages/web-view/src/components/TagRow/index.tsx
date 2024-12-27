@@ -9,6 +9,7 @@ export interface TagRowProps {
   updateTag: (tag: Tag) => void;
   doSave: (tag: Tag) => void;
   onDelete: (tag: Tag) => void;
+  onCancel: (tag: Tag) => void;
 }
 
 const TagRow = ({
@@ -18,10 +19,16 @@ const TagRow = ({
   updateTag,
   doSave,
   onDelete,
+  onCancel,
 }: TagRowProps) => {
   if (tag.id === currentEditTag?.id) {
     return (
-      <TagEditor doSave={doSave} updateTag={updateTag} tag={currentEditTag} />
+      <TagEditor
+        onCancel={onCancel}
+        doSave={doSave}
+        updateTag={updateTag}
+        tag={currentEditTag}
+      />
     );
   }
   return <TagRender onDelete={onDelete} onEdit={onEdit} tag={tag} />;

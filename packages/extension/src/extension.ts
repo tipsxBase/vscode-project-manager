@@ -47,6 +47,20 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
+  vscode.commands.registerCommand("vscode-project-manager.saveProject", () => {
+    saveProject()
+      .then((msg) => vscode.window.showInformationMessage(msg))
+      .catch((err) => vscode.window.showWarningMessage(err));
+  });
+
+  vscode.commands.registerCommand("vscode-project-manager.newTag", () => {
+    pushToWebview(
+      WebViewType.ProjectManagerTag,
+      WebviewServerPushEvent.TriggerNewTagAction,
+      null
+    );
+  });
+
   const webviewMap = new Map<WebViewType, vscode.WebviewView>();
 
   const webviewPendingMessageMap = new Map<
@@ -97,7 +111,7 @@ export function activate(context: vscode.ExtensionContext) {
     );
   };
 
-  const saveProject = async (webviewView: vscode.WebviewView) => {
+  const saveProject = async () => {
     const workspaceFolders = vscode.workspace.workspaceFolders;
     const store = await getProjectStore(storageUrl);
     let updated = false;
@@ -118,10 +132,15 @@ export function activate(context: vscode.ExtensionContext) {
 
     if (updated) {
       await saveProjectStore(storageUrl, store);
+      await pushToWebview(
+        WebViewType.ProjectManager,
+        WebviewServerPushEvent.StoreUpdated,
+        store
+      );
+      return Promise.resolve("项目保存成功");
+    } else {
+      return Promise.reject("当前项目已经存在");
     }
-    await webviewView.webview.postMessage(
-      createVsCodeSuccessResponse(WebviewResponseMethod.SaveProject, store)
-    );
   };
 
   const updateProject = async (
@@ -145,7 +164,7 @@ export function activate(context: vscode.ExtensionContext) {
     );
     await pushToWebview(
       WebViewType.ProjectManager,
-      WebviewServerPushEvent.TAG_UPDATED,
+      WebviewServerPushEvent.StoreUpdated,
       store
     );
   };
@@ -165,7 +184,7 @@ export function activate(context: vscode.ExtensionContext) {
     );
     await pushToWebview(
       WebViewType.ProjectManager,
-      WebviewServerPushEvent.TAG_UPDATED,
+      WebviewServerPushEvent.StoreUpdated,
       store
     );
   };
@@ -201,9 +220,6 @@ export function activate(context: vscode.ExtensionContext) {
     switch (method) {
       case WebviewResponseMethod.FetchStore:
         await fetchStore(webviewView);
-        break;
-      case WebviewResponseMethod.SaveProject:
-        await saveProject(webviewView);
         break;
       case WebviewResponseMethod.UpdateProject:
         await updateProject(webviewView, payload);
@@ -271,7 +287,6 @@ export function activate(context: vscode.ExtensionContext) {
       WebViewType.ProjectManagerTag
     );
 
-    console.log("activate");
     context.subscriptions.push(
       vscode.window.registerWebviewViewProvider(
         "project-manager",
