@@ -3,7 +3,7 @@
   "displayName": "vscode-project-management",
   "description": "",
   "version": "0.0.1",
-  "publisher": "tipsxBase",
+  "publisher": "tipsx",
   "repository": {
     "type": "git",
     "url": "git@github.com:tipsxBase/vscode-project-manager.git"
@@ -11,6 +11,7 @@
   "engines": {
     "vscode": "^1.96.0"
   },
+  "license": "MIT",
   "categories": [
     "Other"
   ],
