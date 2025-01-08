@@ -78,9 +78,7 @@ const TagApp = () => {
     });
   });
 
-  const onCancel = useMemoizedFn((tag: Tag) => {
-    const nextTags = tags.filter((item) => item.id !== tag.id);
-    setTags(nextTags);
+  const onCancel = useMemoizedFn(() => {
     setCurrentEditTag(null);
   });
 
